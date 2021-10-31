@@ -31,9 +31,6 @@ namespace Nats.Utils
         public static Options GetOptions()
         {
             var options = ConnectionFactory.GetDefaultOptions();
-            options.User = "alan";
-            options.Password = "rotring123";
-
             return options;
         }
     }

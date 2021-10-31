@@ -1,9 +1,7 @@
 ﻿using Nats.Utils;
 using NATS.Client;
-using NATS.Client.JetStream;
 using Newtonsoft.Json;
 using System.Text;
-using static NATS.Client.JetStream.ConsumerConfiguration;
 
 var natsConnFactory = new ConnectionFactory();
 

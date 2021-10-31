@@ -52,9 +52,9 @@ using (var natsConn = natsConnFactory.CreateConnection(Utils.GetOptions()))
         using (var consumer = jsContext.PullSubscribe("send.mail", pullConsumerOptions))
         {
             natsConn.Flush(1000);
-
             while (true)
             {
+                consumer.PullNoWait(1);
                 var message = consumer.NextMessage();
                 
                 Console.WriteLine("MESSAGE: " + Encoding.UTF8.GetString(message.Data));                
