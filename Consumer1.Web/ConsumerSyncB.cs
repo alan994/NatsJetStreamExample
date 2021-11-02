@@ -6,15 +6,15 @@ using System.Text;
 
 namespace Consumer1.Web
 {
-    public class ConsumerB : BackgroundService
+    public class ConsumerSyncB : BackgroundService
     {
         private ConnectionFactory? natsConnFactory;
         private IConnection? natsConn;
-        private IJetStreamPushAsyncSubscription? subscription;
+        private IJetStreamPushSyncSubscription? subscription;
         private IJetStream? jsContext;
-        private readonly ILogger<ConsumerB> logger;
+        private readonly ILogger<ConsumerSyncB> logger;
 
-        public ConsumerB(ILogger<ConsumerB> logger)
+        public ConsumerSyncB(ILogger<ConsumerSyncB> logger)
         {
             this.logger = logger;
         }
@@ -28,20 +28,29 @@ namespace Consumer1.Web
             this.jsContext = natsConn.CreateJetStreamContext();
 
             var pushConsumerOptions = ConsumerConfiguration.Builder()
-                                    .WithDurable("natsconsumer1")
+                                    .WithDurable("natsconsumersync1")                                    
                                     //.WithDeliverGroup("message-senders")
                                     .BuildPushSubscribeOptions();
 
-            this.subscription = jsContext.PushSubscribeAsync("send.*", (sender, args) =>
+            this.subscription = jsContext.PushSubscribeSync("send.*", pushConsumerOptions);
+
+            while (true)
             {
-                var message = Encoding.UTF8.GetString(args.Message.Data);
-                this.logger.LogInformation("MESSAGE: " + message);
-                this.logger.LogInformation("METADATA: " + JsonConvert.SerializeObject(args.Message.MetaData));
-
-                args.Message.Ack();
-            }, false, pushConsumerOptions);
-
-
+                try
+                {
+                    Msg msg = this.subscription.NextMessage();
+                    var message = Encoding.UTF8.GetString(msg.Data);
+                    this.logger.LogInformation("MESSAGE: " + message);
+                    this.logger.LogInformation("METADATA: " + JsonConvert.SerializeObject(msg.MetaData));
+                    await Task.Delay(1000);
+                    msg.Ack();
+                }
+                catch (NATSTimeoutException)
+                {
+                    // timeout is acceptable, means no messages available.
+                }
+            }
+               
             this.logger.LogInformation(subscription.Stream);
             //subscription.Start();
 

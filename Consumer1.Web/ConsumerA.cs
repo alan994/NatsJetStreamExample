@@ -28,7 +28,7 @@ namespace Consumer1.Web
             this.jsContext = natsConn.CreateJetStreamContext();
 
             var pushConsumerOptions = ConsumerConfiguration.Builder()
-                                    .WithDurable("natsconsumer1")
+                                    .WithDurable("natsconsumer1")                                    
                                     //.WithDeliverGroup("message-senders")
                                     .BuildPushSubscribeOptions();
 
