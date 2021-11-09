@@ -2,8 +2,8 @@ using Consumer1.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHostedService<ConsumerSyncB>();
 builder.Services.AddHostedService<ConsumerSyncA>();
+builder.Services.AddHostedService<ConsumerSyncB>();
 
 var app = builder.Build();
 

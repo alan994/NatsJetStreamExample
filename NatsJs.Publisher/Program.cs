@@ -13,11 +13,12 @@ using (var natsConn = natsConnFactory.CreateConnection(Utils.GetOptions()))
 
     while (true)
     {
+        var id = Guid.NewGuid();
         var message = new Msg(
             "send.mail", 
             null, 
             new MsgHeader(), 
-            Encoding.UTF8.GetBytes("Message " + Guid.NewGuid())
+            Encoding.UTF8.GetBytes("Message " + id)
         );
 
         var ack = await jsContext.PublishAsync(message);
@@ -27,10 +28,11 @@ using (var natsConn = natsConnFactory.CreateConnection(Utils.GetOptions()))
         }
         else
         {
-            Console.WriteLine("SUCCESS: " + JsonConvert.SerializeObject(ack));
+            Console.WriteLine("SUCCESS: " + id);
             Console.WriteLine();
             Console.WriteLine();
         }
         await Task.Delay(1000);
+        break;
     }
 }

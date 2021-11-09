@@ -27,12 +27,19 @@ namespace Consumer1.Web
 
             this.jsContext = natsConn.CreateJetStreamContext();
 
-            var pushConsumerOptions = ConsumerConfiguration.Builder()
+            var consumerConfiguration = ConsumerConfiguration.Builder()
                                     .WithDurable("natsconsumersync1")                                    
-                                    //.WithDeliverGroup("message-senders")
-                                    .BuildPushSubscribeOptions();
+                                    .WithDeliverSubject("something-else")
+                                    .WithDeliverGroup("message-senders")
+                                    .Build();
 
-            this.subscription = jsContext.PushSubscribeSync("send.*", pushConsumerOptions);
+            var jsm = natsConn.CreateJetStreamManagementContext();
+
+            jsm.AddOrUpdateConsumer(Utils.StreamName, consumerConfiguration);
+
+            var pushConsumerOptions = PushSubscribeOptions.BindTo(Utils.StreamName, "natsconsumersync1");
+
+            this.subscription = jsContext.PushSubscribeSync("send.sms", "message-senders", pushConsumerOptions);
 
             while (true)
             {
@@ -41,9 +48,9 @@ namespace Consumer1.Web
                     Msg msg = this.subscription.NextMessage();
                     var message = Encoding.UTF8.GetString(msg.Data);
                     this.logger.LogInformation("MESSAGE: " + message);
-                    this.logger.LogInformation("METADATA: " + JsonConvert.SerializeObject(msg.MetaData));
+                    //this.logger.LogInformation("METADATA: " + JsonConvert.SerializeObject(msg.MetaData));
 
-                    await Task.Delay(1000);
+                    await Task.Delay(5000);
                     msg.Ack();
                 }
                 catch (NATSTimeoutException)

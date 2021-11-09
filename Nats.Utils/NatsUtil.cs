@@ -19,7 +19,7 @@ namespace Nats.Utils
                 var conversationStreamConfig = StreamConfiguration.Builder()
                         .WithName(StreamName)
                         .WithStorageType(StorageType.Memory)
-                        .WithSubjects("send.*")
+                        .WithSubjects("send.>")
                         .Build();
 
                 var stream = jsStreamManagement.AddStream(conversationStreamConfig);
